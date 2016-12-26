@@ -9,5 +9,5 @@ pegs = (ARGV[1] || 40).to_i
 
 raise "Usage: ./drawstrings image_path [nb_pegs]" unless image_path && pegs
 
-Drawstrings.(image_path, pegs)
+Drawstrings.new(image_path, pegs).process!
 
