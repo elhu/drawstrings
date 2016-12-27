@@ -6,8 +6,10 @@ require 'drawstrings'
 
 image_path = ARGV[0]
 pegs = (ARGV[1] || 200).to_i
+max_lines = (ARGV[2] || 500).to_i
+loop_length = (ARGV[3] || 3).to_i
 
-raise "Usage: ./drawstrings image_path [nb_pegs]" unless image_path && pegs
+raise "Usage: ./drawstrings image_path [nb_pegs [max_lines [loop_length]]]" unless image_path && pegs
 
-Drawstrings.new(image_path, pegs).process!
+Drawstrings.new(image_path, pegs, max_lines, loop_length).process!
 

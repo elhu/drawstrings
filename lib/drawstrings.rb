@@ -3,11 +3,15 @@ require 'image_preprocessor'
 require 'set'
 
 class Drawstrings
-  attr_reader :image_path, :nb_pegs, :image, :pegs_coords, :radius
+  attr_reader :image_path, :nb_pegs, :image, :pegs_coords, :radius, :max_lines, :loop_length
 
-  def initialize(image_path, pegs)
+  def initialize(image_path, pegs, max_lines, loop_length)
     @image_path = image_path
     @nb_pegs = pegs
+    @max_lines = max_lines
+    @loop_length = loop_length
+    @line_thickness = 1
+    @line_color = OpenCV::CvColor.new(64, 64, 64, 0)
   end
 
   def process!
@@ -16,12 +20,14 @@ class Drawstrings
     @radius = processor.radius
     first_peg = pegs_coords.sample
     find_best_line(first_peg)
+    result.save("./output.jpg")
+    puts "\nResult saved as output.jpg"
     self.class.show_image(result)
   end
 
   def self.show_image(img)
-    window = OpenCV::GUI::Window.new('Res')
-    window.show(img)
+    @window ||= OpenCV::GUI::Window.new('Res')
+    @window.show(img)
     OpenCV::GUI::wait_key
   end
 
@@ -31,8 +37,12 @@ class Drawstrings
     OpenCV::CvMat.load(image_path, OpenCV::CV_LOAD_IMAGE_GRAYSCALE)
   end
 
-  def find_best_line(peg)
+  def find_best_line(peg, line_counter = 0)
+    return if line_counter >= max_lines
+    print "\rComputing... #{((line_counter + 1) / max_lines.to_f * 100).to_i}%"
     visited << peg
+    # Only keep the last n visited pegs in memory
+    visited.shift if visited.length > loop_length
     best_score = -1
     best_coord = nil
     pegs_coords.each do |coord|
@@ -45,8 +55,8 @@ class Drawstrings
     end
     return unless best_coord
     mask.line!(OpenCV::CvPoint.new(*peg), OpenCV::CvPoint.new(*best_coord), color: OpenCV::CvColor::White)
-    result.line!(OpenCV::CvPoint.new(*peg), OpenCV::CvPoint.new(*best_coord), color: OpenCV::CvColor::Black)
-    find_best_line(best_coord)
+    result.line!(OpenCV::CvPoint.new(*peg), OpenCV::CvPoint.new(*best_coord), color: @line_color, thickness: @line_thickness, line_type: OpenCV::CONNECTIVITY[:aa])
+    find_best_line(best_coord, line_counter + 1)
   end
 
   def mask
@@ -64,7 +74,7 @@ class Drawstrings
   end
 
   def visited
-    @visited ||= Set.new
+    @visited ||= []
   end
 
   def pegs_coords
