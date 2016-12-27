@@ -10,7 +10,7 @@ class ImagePreprocessor
   def preprocess_image
     crop_square
     negate_image
-    crop_circle
+    crop_circle.tap { |img| img.save("./preprocessed.jpg") }
   end
 
   def radius
