@@ -5,7 +5,7 @@ $:.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'drawstrings'
 
 image_path = ARGV[0]
-pegs = (ARGV[1] || 40).to_i
+pegs = (ARGV[1] || 200).to_i
 
 raise "Usage: ./drawstrings image_path [nb_pegs]" unless image_path && pegs
 
