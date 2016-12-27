@@ -1,4 +1,5 @@
 require 'opencv'
+require 'image_preprocessor'
 
 class Drawstrings
   attr_reader :image_path, :nb_pegs, :image
@@ -9,32 +10,14 @@ class Drawstrings
   end
 
   def process!
-    load_image
-    resize_image
-    negate_image
-    crop_circle
-    # show_image(image)
+    @image = ImagePreprocessor.new(load_image).preprocess_image
+    show_image(image)
   end
 
   private
+  # Load image and convert it to grayscale
   def load_image
-    @image = OpenCV::CvMat.load(image_path, OpenCV::CV_LOAD_IMAGE_GRAYSCALE)
-  end
-
-  def resize_image
-    size = OpenCV::CvSize.new(255, 255)
-    @image = image.resize(size)
-  end
-
-  def negate_image
-    image.not!
-  end
-
-  def crop_circle
-    mask = OpenCV::CvMat.new(255, 255, image.depth, image.channel)
-    mask.zero!
-    mask.circle!(OpenCV::CvPoint.new(128, 128), 128, color: OpenCV::CvColor::White, thickness: -1, line_type: 8, shift: 0)
-    show_image(mask.and(image))
+    OpenCV::CvMat.load(image_path, OpenCV::CV_LOAD_IMAGE_GRAYSCALE)
   end
 
   def show_image(img)
