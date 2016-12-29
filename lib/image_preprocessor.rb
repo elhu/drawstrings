@@ -14,7 +14,7 @@ class ImagePreprocessor
   end
 
   def radius
-    @radius ||= begin 
+    @radius ||= begin
       width, height = image.size
       [width, height].min / 2
     end
@@ -23,7 +23,6 @@ class ImagePreprocessor
   private
   def crop_square
     width, height = image.size
-    smallest_side = [width, height].min
     roi = CvRect.new(width / 2 - radius, height / 2 - radius, radius * 2, radius * 2)
     @image = image.subrect(roi)
   end

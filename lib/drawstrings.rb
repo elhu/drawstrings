@@ -28,7 +28,7 @@ class Drawstrings
   def self.show_image(img)
     @window ||= OpenCV::GUI::Window.new('Res')
     @window.show(img)
-    OpenCV::GUI::wait_key
+    OpenCV::GUI.wait_key
   end
 
   private
